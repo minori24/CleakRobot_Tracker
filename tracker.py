@@ -6,23 +6,35 @@ import threading
 
 class Tracker:
 
+    # distance to target, frame size at target distance
+    TARGET_DISTANCE = 1.0
+    FRAME_HEIGHT = 0.55
+    FRAME_WIDTH = 0.9
+    FRAME_X_FACTOR = 1
+    FRAME_Y_FACTOR = 1
+
     def __init__(self):
         self.srv = servo.ServoController()
         self.trackerThread = threading.Thread(target=self.track, name="tracker")
-        self.trackingState = False
+        self.isTracking = False
         self.trackerThread.setDaemon(True)
         self.event_stopTracking = threading.Event()
+        self.event_Locked = threading.Event()
         self.capture = cv2.VideoCapture(0)
 
+    def addRobot(self):
+        self.srv.addRobot(name="0", offsetX=0, offsetY=0)
+
     def startTracking(self):
-        self.trackingState = True
+        self.isTracking = True
         self.event_stopTracking.clear()
         self.trackerThread.start()
+        self.event_Locked.clear()
 
         print "start tracking"
 
     def stopTracking(self):
-        self.trackingState = False
+        self.isTracking = False
         self.event_stopTracking.set()
 
     def track(self):
@@ -38,15 +50,24 @@ class Tracker:
                 if len(rects) > 0:
                     # pick one largest rect
                     rect = max(rects, key=(lambda x: x[2] * x[3]))
+                    self.event_Locked.set()
 
                     x = rect[0]
                     y = rect[1]
                     w = rect[2]
                     h = rect[3]
 
-                    dx = (x + w / 2) - center_x
-                    dy = (y + h / 2) - center_y
-                    self.srv.update(dx * 0.1, dy * 0.1)
+                    targetX = (x + w / 2) - center_x
+                    targetY = center_y - (y + h / 2)
+
+                    # print "x:" + str(1500 + targetX * self.FRAME_X_FACTOR) + " y:" + str(targetY)
+                    self.srv.moveAbsoluteX("0", 1500 - targetX * self.FRAME_X_FACTOR)
+                    self.srv.moveAbsoluteY("0", 1600 - targetY * self.FRAME_Y_FACTOR)
+
+                else:
+                    self.event_Locked.clear()
+                    self.srv.moveAbsoluteX("0", 1500)
+                    self.srv.moveAbsoluteY("0", 1600)
 
         self.capture.release()
 
@@ -69,11 +90,15 @@ class Tracker:
         pass
 
     def getTrackingState(self):
-        return self.trackingState
+        if event_Locked.is_set():
+            return True
+        else:
+            return False
 
 if __name__ == "__main__":
 
     tracker = Tracker()
+    tracker.addRobot()
     tracker.startTracking()
     while True:
         print "wait"
