@@ -33,6 +33,17 @@ class ServoController:
         self.driver.setPulseWidth(self.SERVO_CH_MOUTH, position)
 
     def update(self, pxDeltaX, pxDeltaY):
+        # if pxDeltaX < 0 and posX < SERVO_MAX:
+        #     posX = self.servo_x - pxDeltaX
+        #
+        # if pxDeltaX > 0 and posX > SERVO_MIN:
+        #     posX = self.servo_x - pxDeltaX
+        #
+        # if pxDeltaY < 0 and posY < SERVO_MAX:
+        #     posY = self.servo_y - pxDeltaY
+        #
+        # if pxDeltaY > 0 and posY > SERVO_MIN:
+        #     posY = self.servo_y - pxDeltaY
         posX = self.servo_x - pxDeltaX
         posY = self.servo_y - pxDeltaY
         self.driver.setPulseWidth(self.SERVO_CH_X, posX)
