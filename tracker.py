@@ -47,6 +47,10 @@ class Tracker:
                     dx = (x + w / 2) - center_x
                     dy = (y + h / 2) - center_y
                     self.srv.update(dx * 0.1, dy * 0.1)
+                else:
+                    print "no objects found"
+                    self.srv.moveAbsoluteX(1500)
+                    self.srv.moveAbsoluteY(1900)
 
         self.capture.release()
 
@@ -76,7 +80,6 @@ if __name__ == "__main__":
     tracker = Tracker()
     tracker.startTracking()
     while True:
-        print "wait"
         i = raw_input()
         if i == "c":
             tracker.stopTracking()

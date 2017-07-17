@@ -45,11 +45,11 @@ class ServoController:
         # if pxDeltaY > 0 and posY > SERVO_MIN:
         #     posY = self.servo_y - pxDeltaY
         posX = self.servo_x - pxDeltaX
-        posY = self.servo_y - pxDeltaY
+        posY = self.servo_y + pxDeltaY
         self.driver.setPulseWidth(self.SERVO_CH_X, posX)
         self.driver.setPulseWidth(self.SERVO_CH_Y, posY)
-        self.servo_x = posX
-        self.servo_y = posY
+        self.servo_x = int(posX)
+        self.servo_y = int(posY)
         print "x:" + str(self.servo_x) + " y:" + str(self.servo_y)
 
     def moveMouth(self, openclose):
