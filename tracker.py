@@ -6,6 +6,10 @@ import threading
 
 class Tracker:
 
+    face_cascade_path = '/home/minori/opencv/opencv_itseez/opencv-3.2.0/data/haarcascades/haarcascade_frontalface_default.xml'
+    eye_cascade_path = '/home/minori/opencv/opencv/data/haarcascade_eye.xml'
+    smile_cascade_path = '/home/minori/opencv/opencv/data/haarcascade_smile.xml'
+
     def __init__(self):
         self.srv = servo.ServoController()
         self.trackerThread = threading.Thread(target=self.track, name="tracker")
