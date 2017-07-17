@@ -13,6 +13,8 @@ class Tracker:
         self.trackerThread.setDaemon(True)
         self.event_stopTracking = threading.Event()
         self.capture = cv2.VideoCapture(0)
+        self.capture.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 320)
+        self.capture.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 240)
 
     def startTracking(self):
         self.trackingState = True
@@ -33,7 +35,7 @@ class Tracker:
                 height, width = frame.shape[:2]
                 center_x = width / 2
                 center_y = height / 2
-                rects = self.trackRed(frame)
+                rects = self.trackFace(frame)
 
                 if len(rects) > 0:
                     # pick one largest rect
@@ -49,11 +51,37 @@ class Tracker:
                     self.srv.update(dx * 0.1, dy * 0.1)
                 else:
                     print "no objects found"
-                    self.srv.moveAbsoluteX(1500)
-                    self.srv.moveAbsoluteY(1900)
+                    # self.srv.moveAbsoluteX(1500)
+                    # self.srv.moveAbsoluteY(1900)
 
         self.capture.release()
 
+    def trackFace(self, img):
+
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=1, minSize=(1, 1))
+        print faces
+        return faces
+        #
+        # for (x, y, w, h) in faces:
+        #     #cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
+        #     roi_gray = gray[y:y+h, x:x+w]
+        #     roi_color = img[y:y+h, x:x+w]
+
+            # eyes = eye_cascade.detectMultiScale(roi_gray)
+            #
+            # for (ex, ey, ew, eh) in eyes:
+            #     cv2.rectangle(roi_color, (ex, ey), (ex+ew, ey+eh), (0, 255, 0), 2)
+            #
+            # smile = smile_cascade.detectMultiScale(roi_gray,
+            #                                        scaleFactor=1.7,
+            #                                        minNeighbors=22,
+            #                                        minSize=(25, 25),
+            #                                        )
+            #
+            # for (ex, ey, ew, eh) in smile:
+            #     cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 255), 2)
+            #
     def trackRed(self, image):
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
         h = hsv[:, :, 0]
