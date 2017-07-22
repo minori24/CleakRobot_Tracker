@@ -10,6 +10,10 @@ class Tracker:
     eye_cascade_path = '/home/minori/opencv/opencv/data/haarcascade_eye.xml'
     smile_cascade_path = '/home/minori/opencv/opencv/data/haarcascade_smile.xml'
 
+    face_cascade = cv2.CascadeClassifier(face_cascade_path)
+    eye_cascade = cv2.CascadeClassifier(eye_cascade_path)
+    smile_cascade = cv2.CascadeClassifier(smile_cascade_path)
+    
     def __init__(self):
         self.srv = servo.ServoController()
         self.trackerThread = threading.Thread(target=self.track, name="tracker")
