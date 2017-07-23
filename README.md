@@ -1,7 +1,7 @@
 # お面受付ロボット - カメラ・サーボ制御
 ロボットの顔にカメラを付けた場合の制御です。カメラ画像の中心位置に物体が来るようにサーボを制御します。
 
-`$python tracker.py`
+`$python animator.py`
 
 ## Materials
 * Raspberry Pi 3
