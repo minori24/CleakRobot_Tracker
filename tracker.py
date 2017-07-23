@@ -13,9 +13,11 @@ class Tracker:
     face_cascade = cv2.CascadeClassifier(face_cascade_path)
     eye_cascade = cv2.CascadeClassifier(eye_cascade_path)
     smile_cascade = cv2.CascadeClassifier(smile_cascade_path)
-    
+
+    faceX = 0
+    faceY = 0
     def __init__(self):
-        self.srv = servo.ServoController()
+        # self.srv = servo.ServoController()
         self.trackerThread = threading.Thread(target=self.track, name="tracker")
         self.trackingState = False
         self.trackerThread.setDaemon(True)
@@ -23,23 +25,25 @@ class Tracker:
         self.capture = cv2.VideoCapture(0)
         self.capture.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 320)
         self.capture.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 240)
+        self.locked = False
+        self.trackerThread.start()
 
     def startTracking(self):
         self.trackingState = True
         self.event_stopTracking.clear()
-        self.trackerThread.start()
-
-        print "start tracking"
 
     def stopTracking(self):
-        self.trackingState = False
+        self.locked = False
         self.event_stopTracking.set()
+        print("stop tracking")
+        self.trackingState = False
 
     def track(self):
-
-        while not self.event_stopTracking.is_set():
-            if self.capture.isOpened:
+        while True:
+            if self.capture.isOpened and not self.event_stopTracking.is_set():
                 _, frame = self.capture.read()
+                if isinstance(frame,type(None)):
+                    print("capture failed")
                 height, width = frame.shape[:2]
                 center_x = width / 2
                 center_y = height / 2
@@ -54,21 +58,26 @@ class Tracker:
                     w = rect[2]
                     h = rect[3]
 
-                    dx = (x + w / 2) - center_x
-                    dy = (y + h / 2) - center_y
-                    self.srv.update(dx * 0.1, dy * 0.1)
+                    self.faceX = rect[0]
+                    self.faceY = rect[1]
+                    self.locked = True
+                    print("There you are. ")
+                    print(rect)
+                    #
+                    # dx = (x + w / 2) - center_x
+                    # dy = (y + h / 2) - center_y
+                    # self.srv.update(dx * 0.1, dy * 0.1)
                 else:
-                    print "no objects found"
+                    pass
+                    # self.locked = False
                     # self.srv.moveAbsoluteX(1500)
                     # self.srv.moveAbsoluteY(1900)
 
-        self.capture.release()
 
     def trackFace(self, img):
 
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=1, minSize=(1, 1))
-        print faces
         return faces
         #
         # for (x, y, w, h) in faces:
@@ -110,6 +119,7 @@ class Tracker:
 
     def getTrackingState(self):
         return self.trackingState
+
 
 if __name__ == "__main__":
 

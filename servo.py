@@ -22,30 +22,45 @@ class ServoController:
         self.driver = pca9685.PCA9685(I2CBus=1, I2CAddr=0x40, freq=47)
 
     def moveAbsoluteX(self, position):
-        self.driver.setPulseWidth(self.SERVO_CH_X, position)
-        self.servo_x = position
+        pos = position
+        if position > self.SERVO_MAX:
+            pos = self.SERVO_MAX
+        if position < self.SERVO_MIN:
+            pos = self.SERVO_MIN
+
+        self.driver.setPulseWidth(self.SERVO_CH_X, pos)
+        self.servo_x = pos
 
     def moveAbsoluteY(self, position):
-        self.driver.setPulseWidth(self.SERVO_CH_Y, position)
-        self.servo_y = position
+        pos = position
+        if position > self.SERVO_MAX:
+            pos = self.SERVO_MAX
+        if position < self.SERVO_MIN:
+            pos = self.SERVO_MIN
+
+        self.driver.setPulseWidth(self.SERVO_CH_Y, pos)
+        self.servo_y = pos
 
     def moveAbsoluteMouth(self, position):
         self.driver.setPulseWidth(self.SERVO_CH_MOUTH, position)
 
     def update(self, pxDeltaX, pxDeltaY):
-        # if pxDeltaX < 0 and posX < SERVO_MAX:
-        #     posX = self.servo_x - pxDeltaX
-        #
-        # if pxDeltaX > 0 and posX > SERVO_MIN:
-        #     posX = self.servo_x - pxDeltaX
-        #
-        # if pxDeltaY < 0 and posY < SERVO_MAX:
-        #     posY = self.servo_y - pxDeltaY
-        #
-        # if pxDeltaY > 0 and posY > SERVO_MIN:
-        #     posY = self.servo_y - pxDeltaY
-        posX = self.servo_x - pxDeltaX
+
+        posX = self.servo_x + pxDeltaX
         posY = self.servo_y + pxDeltaY
+
+        if posX > self.SERVO_MAX:
+            posX = self.SERVO_MAX
+
+        if posX < self.SERVO_MIN:
+            posX = self.SERVO_MIN
+
+        if posY > self.SERVO_MAX:
+            posY = self.SERVO_MAX
+
+        if posY < self.SERVO_MIN:
+            posY = self.SERVO_MIN
+
         self.driver.setPulseWidth(self.SERVO_CH_X, posX)
         self.driver.setPulseWidth(self.SERVO_CH_Y, posY)
         self.servo_x = int(posX)
